@@ -1,5 +1,16 @@
 import telebot
 from telebot import types
+import sqlite3
+
+
+conn = sqlite3.connect('data.db', check_same_thread=False)
+cursor = conn.cursor()    
+
+def db_automobiles():
+    automobiles = cursor.execute('SELECT * FROM automobile')
+    conn.commit()
+    return automobiles
+
 
 bot = telebot.TeleBot('6038960334:AAGWbNJipCHuPPytvZ5FnZaey_8IsgRZ6RA')
 
@@ -18,10 +29,10 @@ def get_text_messages(message):
 
     if message.text == 'Добавить заправку':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True) #создание новых кнопок
-        btn1 = types.KeyboardButton('а121ау31')
-        btn2 = types.KeyboardButton('е566нк31')
-        btn3 = types.KeyboardButton('у777рп31')
-        markup.add(btn1, btn2, btn3)
+        automobiles = db_automobiles()
+        for automobile in automobiles:
+            btn = types.KeyboardButton(automobile[2] + ' / ' + automobile[1])
+            markup.add(btn)
         bot.send_message(message.from_user.id, 'Выберите автомобиль', reply_markup=markup) #ответ бота
 
 
