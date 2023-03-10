@@ -13,16 +13,39 @@ def db_automobiles():
 
 
 bot = telebot.TeleBot('6038960334:AAGWbNJipCHuPPytvZ5FnZaey_8IsgRZ6RA')
+user_data = []
+
+@bot.message_handler(commands=['reg'])
+def reg(message):
+    bot.send_message(message.chat.id, 'Введите имя:')
+    bot.register_next_step_handler(message, firstname)
+    
+def firstname(message):
+    bot.send_message(message.chat.id, 'Введите фамилию:')
+    user_data.append(message.text)
+    bot.register_next_step_handler(message, phone)
+
+def phone(message):
+    bot.send_message(message.chat.id, 'Введите телефон в формате 89...:')
+    user_data.append(message.text)
+    bot.register_next_step_handler(message, print_user_data)
+
+def print_user_data(message):
+    user_data.append(message.text)
+    print(user_data)
+    bot.send_message(message.chat.id, 'Добро пожаловать ' + user_data[0] + ' ' + user_data[1])
+    bot.register_next_step_handler(message, start)
 
 @bot.message_handler(commands=['start'])
 def start(message):
 
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton("Добавить заправку")
-    btn2 = types.KeyboardButton("Добавить расходы")
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(text = "Добавить заправку", callback_data = 'no')
+    btn2 = types.InlineKeyboardButton(text = "Добавить расходы", callback_data='no')
     markup.add(btn1)
     markup.add(btn2)
     bot.send_message(message.from_user.id, "👋 Привет! Я твой транспортный бот!", reply_markup=markup)
+    print(message.from_user.id)
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
